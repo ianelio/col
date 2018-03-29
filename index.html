@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<style>
+		.axis path,
+		.axis line{
+		    fill: none;
+		    stroke: #999fff;
+		    shape-rendering: crispEdges;
+		}
+
+		.axis text {
+		    font-family: sans-serif;
+		    font-size: 15px;
+		    stroke:#999fff;
+		}
+</style>
+</head>
+<body>
+	<script>
+		//full Column chart
+		//1.create svg
+		//2.define the element padding
+		//3.define direction x,y scale by data
+		//4.define axis x,y by scale
+		//5.create all rect and text 
+		let database = {
+			num:[10, 20, 30, 40, 33, 24, 12, 5]
+		}
+		
+		let width = 400;
+		let height = 400;  
+		let svg = d3.select("body")
+			    	.append("svg")
+			    	.attr("width", width)
+		    		.attr("height", height);
+		let padding = {left:30, right:30, top:20, bottom:20};
+		let dataset = database.num.map((item)=>{return item})
+		let xScale = d3.scale.ordinal()
+		    .domain(d3.range(dataset.length))
+		    .rangeRoundBands([0, width - padding.left - padding.right]);
+		let yScale = d3.scale.linear()
+		    .domain([0,d3.max(dataset)])
+		    .range([height - padding.top - padding.bottom, 0]);
+		let xAxis = d3.svg.axis()
+		    .scale(xScale)
+		    .orient("bottom");
+		let yAxis = d3.svg.axis()
+		    .scale(yScale)
+		    .orient("left");
+		let rectPadding = 4;
+		let rects = svg.selectAll(".MyRect")
+		        .data(dataset)
+		        .enter()
+		        .append("rect")
+		        .attr("class","MyRect")
+		         .call(effect)
+		        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		        .attr("x", function(d,i){
+		            return xScale(i) + rectPadding/2;
+		        } )
+		        .attr("y",function(d){
+		            return yScale(d);
+		        })
+		        .attr("width", xScale.rangeBand() - rectPadding )
+		        .attr("height", function(d){
+		            return height - padding.top - padding.bottom - yScale(d);
+		        });
+		let texts = svg.selectAll(".MyText")
+		        .data(dataset)
+		        .enter()
+		        .append("text")
+		        .attr("class","MyText")
+		        .attr("fill","#999fff")
+		        .transition()
+		        .duration(1000)
+		        .delay((d,i)=>{
+		        	return 200 * i
+		        })
+		        .attr("fill","#fff")
+		        .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		        .attr("x", function(d,i){
+		            return xScale(i) + rectPadding/2;
+		        } )
+		        .attr("y",function(d){
+		            return yScale(d);
+		        })
+		        .attr("dx",function(){
+		            return (xScale.rangeBand() - rectPadding)/2 - 10;
+		        })
+		        .attr("dy",function(d){
+		            return 20;
+		        })
+		        .text(function(d){
+		            return d;
+		        });
+		svg.append("g")
+		  .attr("class","axis")
+		  .attr("transform","translate(" + padding.left + "," + (height - padding.bottom) + ")")
+		  .call(effect)
+		  .call(xAxis); 
+		svg.append("g")
+		  .attr("class","axis")
+		  .attr("transform","translate(" + padding.left + "," + padding.top + ")")
+		  .call(effect)
+		  .call(yAxis);
+
+		function effect(ele){
+			ele.attr("fill","#fff")
+		        .transition()
+		        .duration(1000)
+		        .delay((d,i)=>{
+		        	return 200*i
+		        })
+		        .attr("fill","#999fff")
+		}
+	</script>
+</body>
+</html>
